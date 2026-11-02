@@ -1,0 +1,571 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Quest | OurQuiz</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --red: #ff2020;
+    --dark-red: #8f0000;
+    --black: #080808;
+    --panel: #151515;
+    --white: #f5f5f5;
+    --grey: #999;
+}
+
+body {
+    background:
+        radial-gradient(ellipse at top, #300000 0%, #100000 35%, #050505 80%);
+    color: var(--white);
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+}
+
+/* Custom spinning triangle cursor */
+#triangleCursor {
+    position: fixed;
+    width: 23px;
+    height: 23px;
+    background: #ff1616;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    filter: drop-shadow(0 0 5px red) drop-shadow(0 0 13px red);
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    to { rotate: 360deg; }
+}
+
+button, .option {
+    cursor: none;
+}
+
+@media (hover: none) {
+    #triangleCursor {
+        display: none;
+    }
+    body, button, .option {
+        cursor: auto;
+    }
+}
+
+header {
+    text-align: center;
+    padding: 28px 15px 15px;
+}
+
+.logo {
+    font-size: 13px;
+    color: var(--red);
+    letter-spacing: 5px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+h1 {
+    font-size: clamp(30px, 6vw, 52px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 18px #ff000077;
+}
+
+h1 span {
+    color: var(--red);
+}
+
+.subtitle {
+    color: #aaa;
+    margin-top: 9px;
+    font-size: 14px;
+}
+
+.device-support {
+    margin: 15px auto;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.device-support span {
+    background: #260909;
+    border: 1px solid #8b1717;
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: #ffaaaa;
+}
+
+.container {
+    width: min(760px, 92%);
+    margin: 20px auto 45px;
+}
+
+.panel {
+    background: linear-gradient(145deg, #191919, #0e0e0e);
+    border: 1px solid #662020;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 0 30px #ff000018;
+}
+
+.topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    color: #bbb;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.progress-track {
+    height: 9px;
+    background: #333;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+.progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #8f0000, #ff2020);
+    box-shadow: 0 0 15px red;
+    transition: width .35s;
+}
+
+.category {
+    color: #ff5555;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 3px;
+    margin-bottom: 13px;
+    font-weight: bold;
+}
+
+.question {
+    font-size: clamp(20px, 4vw, 27px);
+    line-height: 1.4;
+    margin-bottom: 25px;
+}
+
+.options {
+    display: grid;
+    gap: 12px;
+}
+
+.option {
+    background: #202020;
+    color: white;
+    border: 1px solid #393939;
+    border-radius: 11px;
+    padding: 16px;
+    text-align: left;
+    font-size: 15px;
+    transition: .2s;
+}
+
+.option:hover:not(:disabled) {
+    border-color: var(--red);
+    background: #351010;
+    transform: translateX(4px);
+    box-shadow: 0 0 14px #ff000033;
+}
+
+.option.correct {
+    background: #12351b;
+    border-color: #27d65a;
+}
+
+.option.wrong {
+    background: #3c1010;
+    border-color: #ff2929;
+}
+
+.option:disabled {
+    opacity: 1;
+}
+
+.feedback {
+    min-height: 25px;
+    margin-top: 18px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.next {
+    display: none;
+    width: 100%;
+    margin-top: 18px;
+    padding: 15px;
+    background: linear-gradient(90deg, #a00000, #ff2020);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.next:hover {
+    filter: brightness(1.2);
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.small-btn {
+    background: #211010;
+    color: #ffaaaa;
+    border: 1px solid #772020;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+#result {
+    display: none;
+    text-align: center;
+}
+
+.result-title {
+    color: var(--red);
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.score {
+    font-size: 58px;
+    font-weight: 900;
+    margin: 20px 0;
+    text-shadow: 0 0 20px red;
+}
+
+.result-message {
+    color: #ccc;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.restart {
+    background: linear-gradient(90deg, #a00000, #ff2020);
+    border: none;
+    padding: 15px 28px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+footer {
+    text-align: center;
+    color: #666;
+    font-size: 11px;
+    padding: 15px;
+}
+
+@media (max-width: 500px) {
+    .panel { padding: 19px; }
+    header { padding-top: 20px; }
+    .option { padding: 14px; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="triangleCursor"></div>
+
+<header>
+    <div class="logo">OURQUIZ PRESENTS</div>
+    <h1>MATH <span>QUEST</span></h1>
+    <p class="subtitle">50 Questions. 5 Categories. One Challenge.</p>
+
+    <div class="device-support">
+        <span>💻 LAPTOP</span>
+        <span>🖥️ DESKTOP</span>
+        <span>📱 MOBILE</span>
+        <span>📺 TV</span>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="panel" id="quiz">
+        <div class="topline">
+            <span id="questionNumber">QUESTION 1 / 50</span>
+            <span id="scoreDisplay">SCORE: 0</span>
+        </div>
+
+        <div class="progress-track">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="category" id="category">NUMBER SYSTEM</div>
+        <div class="question" id="question"></div>
+
+        <div class="options" id="options"></div>
+
+        <div class="feedback" id="feedback"></div>
+        <button class="next" id="nextBtn" onclick="nextQuestion()">NEXT QUESTION →</button>
+
+        <div class="controls">
+            <button class="small-btn" id="musicBtn" onclick="toggleMusic()">♫ MUSIC: ON</button>
+            <span style="font-size:11px;color:#777">MATH QUEST | 1T EDITION</span>
+        </div>
+    </div>
+
+    <div class="panel" id="result">
+        <div class="result-title">QUEST COMPLETE</div>
+        <p>Your final score</p>
+        <div class="score" id="finalScore">0 / 50</div>
+        <div class="result-message" id="resultMessage"></div>
+        <button class="restart" onclick="restartQuiz()">PLAY AGAIN</button>
+    </div>
+
+</div>
+
+<footer>OURQUIZ © 2026 | LEARN. THINK. CONQUER.</footer>
+
+<audio id="music"
+src="https://raw.githubusercontent.com/Hashir819/OurQuiz/main/song%282%29.mp3"
+loop preload="auto"></audio>
+
+<audio id="pop"
+src="https://raw.githubusercontent.com/Hashir819/OurQuiz/main/pop.mp3"
+preload="auto"></audio>
+
+<script>
+const cursor = document.getElementById("triangleCursor");
+
+document.addEventListener("mousemove", e => {
+    cursor.style.left = e.clientX + "px";
+    cursor.style.top = e.clientY + "px";
+});
+
+const music = document.getElementById("music");
+const pop = document.getElementById("pop");
+music.volume = 0.15;
+pop.volume = 0.35;
+
+let musicStarted = false;
+let musicOn = true;
+
+function startMusic() {
+    if (!musicStarted && musicOn) {
+        music.play().then(() => {
+            musicStarted = true;
+        }).catch(() => {});
+    }
+}
+
+document.addEventListener("pointerdown", startMusic, { once: true });
+
+function toggleMusic() {
+    musicOn = !musicOn;
+    document.getElementById("musicBtn").textContent =
+        musicOn ? "♫ MUSIC: ON" : "♫ MUSIC: OFF";
+
+    if (musicOn) {
+        music.play().then(() => musicStarted = true).catch(() => {});
+    } else {
+        music.pause();
+    }
+}
+
+function playPop() {
+    pop.currentTime = 0;
+    pop.play().catch(() => {});
+}
+
+const questions = [
+["Number System","What is the place value of 5 in 3,542?",["5","50","500","5000"],2],
+["Number System","Which number is even?",["13","21","34","45"],2],
+["Number System","What is the square of 8?",["16","32","64","81"],2],
+["Number System","Which is a prime number?",["9","15","17","21"],2],
+["Number System","How many factors does 12 have?",["4","5","6","7"],2],
+["Number System","Which is a multiple of 7?",["30","35","40","45"],1],
+["Number System","What is the HCF of 12 and 18?",["2","3","6","9"],2],
+["Number System","What is the LCM of 4 and 6?",["8","10","12","24"],2],
+["Number System","Which number is divisible by 3?",["124","125","126","127"],2],
+["Number System","What is the smallest whole number?",["0","1","-1","10"],0],
+
+["Arithmetic","What is 245 + 178?",["413","423","433","443"],1],
+["Arithmetic","What is 500 - 275?",["215","225","235","245"],1],
+["Arithmetic","What is 12 × 8?",["86","92","96","108"],2],
+["Arithmetic","What is 144 ÷ 12?",["10","11","12","14"],2],
+["Arithmetic","What is 15 + 5 × 2?",["40","25","30","20"],1],
+["Arithmetic","What is 9 × 9?",["72","81","89","99"],1],
+["Arithmetic","What is 1000 - 456?",["534","544","554","564"],1],
+["Arithmetic","What is 72 ÷ 8?",["7","8","9","10"],2],
+["Arithmetic","What is 25 × 4?",["80","90","100","110"],2],
+["Arithmetic","What is (10 + 5) × 2?",["20","25","30","35"],2],
+
+["Fractions","What does the denominator show?",["Total equal parts","Selected parts","The whole number","The remainder"],0],
+["Fractions","In 3/5, what is the numerator?",["3","5","8","2"],0],
+["Fractions","Which fraction is equal to 1/2?",["2/3","2/4","3/4","1/3"],1],
+["Fractions","Simplify 4/8.",["1/4","1/2","2/3","3/4"],1],
+["Fractions","Which is greater?",["1/4","1/2","They are equal","Cannot tell"],1],
+["Fractions","What is 1/4 + 1/4?",["1/8","1/2","2/8","1/4"],1],
+["Fractions","What is 3/4 - 1/4?",["1/4","1/2","3/4","1"],1],
+["Fractions","What is 1/2 of 20?",["5","10","15","20"],1],
+["Fractions","Which fraction is the largest?",["1/5","1/2","1/4","1/10"],1],
+["Fractions","How many quarters make one whole?",["2","3","4","5"],2],
+
+["Decimals","What is the value of 7 in 3.75?",["7","0.7","0.07","70"],1],
+["Decimals","Convert 1/2 into a decimal.",["0.2","0.25","0.5","1.5"],2],
+["Decimals","Which is greater?",["0.8","0.65","0.7","0.09"],0],
+["Decimals","What is 2.5 + 1.5?",["3","3.5","4","4.5"],2],
+["Decimals","What is 5.0 - 2.3?",["2.3","2.5","2.7","3.7"],2],
+["Decimals","What is 0.5 × 10?",["0.05","0.5","5","50"],2],
+["Decimals","What is 4.8 ÷ 2?",["2.2","2.4","2.6","2.8"],1],
+["Decimals","How many decimal places are in 0.125?",["1","2","3","4"],2],
+["Decimals","Which fraction equals 0.25?",["1/2","1/3","1/4","3/4"],2],
+["Decimals","What is 3.25 + 0.75?",["3.5","3.75","4","4.25"],2],
+
+["Geometry","What is a point?",["A location","A curved line","A surface","An angle"],0],
+["Geometry","A line segment has:",["One endpoint","Two endpoints","No endpoints","Three endpoints"],1],
+["Geometry","A ray has:",["No endpoints","Two endpoints","One endpoint","Four endpoints"],2],
+["Geometry","An angle of 90° is:",["Acute","Obtuse","Right","Straight"],2],
+["Geometry","An angle of 45° is:",["Acute","Obtuse","Right","Straight"],0],
+["Geometry","An angle of 120° is:",["Acute","Obtuse","Right","Straight"],1],
+["Geometry","How many sides does a triangle have?",["2","3","4","5"],1],
+["Geometry","A triangle with all equal sides is:",["Scalene","Isosceles","Equilateral","Right"],2],
+["Geometry","The sum of angles in a triangle is:",["90°","180°","270°","360°"],1],
+["Geometry","Two angles adding up to 90° are:",["Supplementary","Complementary","Equal","Straight"],1]
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const feedbackEl = document.getElementById("feedback");
+const nextBtn = document.getElementById("nextBtn");
+
+function showQuestion() {
+    answered = false;
+    const q = questions[current];
+
+    document.getElementById("questionNumber").textContent =
+        `QUESTION ${current + 1} / ${questions.length}`;
+
+    document.getElementById("scoreDisplay").textContent =
+        `SCORE: ${score}`;
+
+    document.getElementById("progress").style.width =
+        (current / questions.length * 100) + "%";
+
+    document.getElementById("category").textContent = q[0];
+    questionEl.textContent = q[1];
+    optionsEl.innerHTML = "";
+    feedbackEl.textContent = "";
+    nextBtn.style.display = "none";
+
+    q[2].forEach((answer, index) => {
+        const button = document.createElement("button");
+        button.className = "option";
+        button.textContent = `${String.fromCharCode(65 + index)}. ${answer}`;
+        button.onclick = () => selectAnswer(index, button);
+        optionsEl.appendChild(button);
+    });
+}
+
+function selectAnswer(index, button) {
+    if (answered) return;
+    answered = true;
+    playPop();
+
+    const correct = questions[current][3];
+    const buttons = optionsEl.querySelectorAll(".option");
+
+    buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === correct) btn.classList.add("correct");
+    });
+
+    if (index === correct) {
+        score++;
+        feedbackEl.textContent = "✓ CORRECT! Excellent work.";
+        feedbackEl.style.color = "#39e66b";
+    } else {
+        button.classList.add("wrong");
+        feedbackEl.textContent = "✕ INCORRECT! The correct answer is highlighted.";
+        feedbackEl.style.color = "#ff5555";
+    }
+
+    document.getElementById("scoreDisplay").textContent =
+        `SCORE: ${score}`;
+
+    nextBtn.style.display = "block";
+    nextBtn.textContent =
+        current === questions.length - 1 ? "VIEW RESULTS →" : "NEXT QUESTION →";
+}
+
+function nextQuestion() {
+    current++;
+    if (current < questions.length) {
+        showQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function showResults() {
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("result").style.display = "block";
+    document.getElementById("progress").style.width = "100%";
+
+    document.getElementById("finalScore").textContent =
+        `${score} / ${questions.length}`;
+
+    let message;
+
+    if (score >= 45) {
+        message = "Outstanding! You conquered Math Quest.";
+    } else if (score >= 35) {
+        message = "Excellent work! Your mathematics skills are strong.";
+    } else if (score >= 25) {
+        message = "Good effort! Keep practising and level up.";
+    } else {
+        message = "Quest completed! Review the topics and try again.";
+    }
+
+    document.getElementById("resultMessage").textContent =
+        `${message} You answered ${score} questions correctly.`;
+}
+
+function restartQuiz() {
+    current = 0;
+    score = 0;
+    document.getElementById("result").style.display = "none";
+    document.getElementById("quiz").style.display = "block";
+    showQuestion();
+}
+
+showQuestion();
+</script>
+</body>
+</html>
